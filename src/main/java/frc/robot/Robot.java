@@ -13,7 +13,7 @@ import frc.robot.period.Autonomous;
 import frc.robot.period.Teleoperated;
 import frc.robot.period.Test;
 import frc.robot.subsystem.Drivetrain;
-import frc.robot.subsystem.Intake;
+import frc.robot.subsystem.Manipulator;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -22,8 +22,9 @@ import frc.robot.subsystem.Intake;
  * project.
  */
 public class Robot extends TimedRobot {
-	public static final NetworkTable tblMO = NetworkTableInstance.getDefault().getTable("MO Data");
-	public static final NetworkTable tblPeriods = tblMO.getSubTable("Control Periods");
+	public static final NetworkTable tblMain = NetworkTableInstance.getDefault().getTable("MO Data");
+	public static final NetworkTable tblPeriods = tblMain.getSubTable("Control Periods");
+	public static final NetworkTable tblSubsystems = tblMain.getSubTable("Subsystems");
 
 	/**
 	 * This function is run when the robot is first started up and should be used for any
@@ -31,23 +32,38 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void robotInit() {
-		Console.logMsg("Waiting for NetworkTable Connection...");
+		Console.logMsg("*****Robot Initialization Starting*****");
+		Console.logMsg("Establishing NetworkTable Connection...");
 		while(!NetworkTableInstance.getDefault().isConnected()) {}
-		Console.logMsg("NetworkTables connected. Initializing Robot...");
 
+		Console.logMsg("*****Initializing Subsystems***********");
+		Drivetrain.init();
+		Manipulator.init();
+
+		Console.logMsg("*****Initializing Dashboard************");
 		Test.initDashboard();
 		Autonomous.initDashboard();
 		Teleoperated.initDashboard();
 
-		Drivetrain.init();
-		Intake.init();
+		Drivetrain.initDashboard();
+		Manipulator.initDashboard();
 
-		Console.logMsg("Robot Initialized");
+		Console.logMsg("*****Robot Initialization Complete*****");
 	}
 
 	@Override
 	public void robotPeriodic() {
 		ButtonManager.updateValues();
+	}
+
+	@Override
+	public void testInit() {
+		Test.init();
+	}
+
+	@Override
+	public void testPeriodic() {
+		Test.periodic();
 	}
 
 	@Override
@@ -68,21 +84,5 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		Teleoperated.periodic();
-	}
-
-	@Override
-	public void disabledInit() {}
-
-	@Override
-	public void disabledPeriodic() {}
-
-	@Override
-	public void testInit() {
-		Test.init();
-	}
-
-	@Override
-	public void testPeriodic() {
-		Test.periodic();
 	}
 }

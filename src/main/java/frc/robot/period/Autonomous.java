@@ -1,15 +1,18 @@
 package frc.robot.period;
 
+import static frc.robot.Robot.tblPeriods;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.Timer;
 import frc.molib.dashboard.Option;
 import frc.molib.utilities.Console;
-import frc.robot.Robot;
 import frc.robot.subsystem.Drivetrain;
-import frc.robot.subsystem.Intake;
+import frc.robot.subsystem.Manipulator;
 
-@SuppressWarnings("unused")
 public class Autonomous {
+	/**
+	 * Possible starting positions on the field
+	 */
 	private static enum Positions {
 		LEFT("Left"),
 		RIGHT("Right");
@@ -18,8 +21,12 @@ public class Autonomous {
 		private Positions(String label) { this.label = label; }
 		@Override public String toString() { return label; }
 	}
+
+	/**
+	 * Possible Autonomous sequences to be run
+	 */
 	private static enum Sequences { 
-		NONE("Do Nothing"),
+		DO_NOTHING("Do Nothing"),
 		TEST("Test"); 
 
 		public final String label;
@@ -27,9 +34,9 @@ public class Autonomous {
 		@Override public String toString() { return label; }
 	}
 
-	private static final NetworkTable tblAutonPeriod = Robot.tblPeriods.getSubTable("Autonomous");
-	private static final Option<Positions> optPosition = new Option<Positions>(tblAutonPeriod, "Position", Positions.LEFT);
-	private static final Option<Sequences> optSequence = new Option<Sequences>(tblAutonPeriod, "Sequence", Sequences.NONE);
+	private static final NetworkTable tblAutonomous = tblPeriods.getSubTable("Autonomous");
+	private static final Option<Positions> optPosition = new Option<Positions>(tblAutonomous, "Position", Positions.LEFT);
+	private static final Option<Sequences> optSequence = new Option<Sequences>(tblAutonomous, "Sequence", Sequences.DO_NOTHING);
 
 	private static Positions mSelectedPosition;
 	private static Sequences mSelectedSequence;
@@ -38,36 +45,28 @@ public class Autonomous {
 
 	private Autonomous() {}
 
-	public static void initDashboard() {
-		optPosition.init();
-		optSequence.init();
-	}
-
+	/**
+	 * Get ready for Autonomous Period. Collect any data from the dashboard, initialize any last minute systems, etc.
+	 */
 	public static void init() {
+		Console.logMsg("Autonomous Period Initializing...");
+
 		mSelectedPosition = optPosition.get();
 		mSelectedSequence = optSequence.get();
+
 		tmrStage.reset();
 		mStage = 0;
 
-		Console.logMsg("Selected Auton: " + mSelectedSequence.toString() + " - " + mSelectedPosition.toString());
-		Console.logMsg("Autonomous Initialized");
+		Console.logMsg("Starting Position: " + mSelectedPosition.toString());
+		Console.logMsg("Autonomous Sequence: " + mSelectedSequence.toString());
 	}
 
-	private static void autonNONE() {
-		switch(mStage){
-			case 0:
-				Console.logMsg("Starting Sequence [NONE]");
-				mStage++;
-				break;
-			case 1:
-				Console.logMsg("Ending Sequence [NONE]");
-				mStage++;
-				break;
-			default:
-				Drivetrain.disable();
-				Intake.disable();
-				break;
-		}
+	/**
+	 * Preload dashboard values
+	 */
+	public static void initDashboard() {
+		optPosition.init();
+		optSequence.init();
 	}
 
 	private static void autonFORWARD() {
@@ -97,7 +96,7 @@ public class Autonomous {
 				break;
 			default:
 				Drivetrain.disable();
-				Intake.disable();
+				Manipulator.disable();
 				break;
 		}
 	}
@@ -105,19 +104,16 @@ public class Autonomous {
 
 	public static void periodic() {
 		switch(mSelectedSequence) {
-			case NONE:
-				autonNONE();
-				break;
 			case TEST:
 				autonFORWARD();
 				break;
-			default:
+			default: //If "DO_NOTHING" is selected or selected sequence does not appear here, just stop the robot
 				Drivetrain.disable();
-				Intake.disable();
+				Manipulator.disable();
 				break;
 		}
 
 		Drivetrain.periodic();
-		Intake.periodic();
+		Manipulator.periodic();
 	}
 }

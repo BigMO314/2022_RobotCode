@@ -1,30 +1,37 @@
 package frc.robot.period;
 
+import static frc.robot.Robot.tblPeriods;
+
 import javax.lang.model.util.ElementScanner6;
 
+import edu.wpi.first.networktables.NetworkTable;
 import frc.molib.XboxController;
 import frc.molib.utilities.Console;
 import frc.robot.subsystem.Drivetrain;
-import frc.robot.subsystem.Intake;
+import frc.robot.subsystem.Manipulator;
 
 @SuppressWarnings("unused")
 public class Teleoperated {
+	private static final NetworkTable tblTeleoperated = tblPeriods.getSubTable("Teleoperated");
+
 	private static final XboxController ctlDriver = new XboxController(0);
-	private static final XboxController ctlOperator = new XboxController(0);
+	private static final XboxController ctlOperator = new XboxController(1);
 
 	private static final class SpeedMultiplier {
 		public static final double LOW = 0.25;
 		public static final double STANDARD = 0.75;
-		public static final double HIGH = 1.0;
+		public static final double HIGH = 1.0; //Unused
 	}
 
-	//DO NO INSTANTIATE
 	private Teleoperated() {}
 
 	public static void init() {
-		Console.logMsg("Teleoperated Initialized");
+		Console.logMsg("Teleoperated Period Initializing...");
 	}
 
+	/**
+	 * Preload dashboard values
+	 */
 	public static void initDashboard() {
 
 	}
@@ -43,21 +50,21 @@ public class Teleoperated {
 		else
 			setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.STANDARD, ctlDriver.getRightX() * SpeedMultiplier.STANDARD);
 
-		if(ctlDriver.getLeftBumper() || ctlOperator.getLeftBumper())
-			Intake.raiseArm();
-		else if(ctlDriver.getLeftBumper() || ctlOperator.getRightBumper())
-			Intake.lowerArm();
+		if(ctlDriver.getRightBumper() || ctlOperator.getRightBumper())
+			Manipulator.raiseArm();
+		else if(ctlDriver.getLeftBumper() || ctlOperator.getLeftBumper())
+			Manipulator.lowerArm();
 		else
-			Intake.disableArm();
+			Manipulator.disableArm();
 
 		if(ctlDriver.getAButton() || ctlOperator.getAButton())
-			Intake.reverseIntake();
+			Manipulator.reverseIntake();
 		else if(ctlDriver.getRightTrigger() || ctlOperator.getRightTrigger())
-			Intake.enableIntake();
+			Manipulator.enableIntake();
 		else
-			Intake.disableIntake();
+			Manipulator.disableIntake();
 
 		Drivetrain.periodic();
-		Intake.periodic();
+		Manipulator.periodic();
 	}
 }
