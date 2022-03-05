@@ -54,7 +54,7 @@ public class Manipulator {
 	}
 
 	/**
-	 * Dashboard initialization run when the robot is started
+	 * Dashboard initialization run once after a connection to NetworkTables has been established
 	 */
 	public static void initDashboard() {
 		entArm_Power.set(getArmPower());
@@ -67,7 +67,7 @@ public class Manipulator {
 
 	/**
 	 * Configure the arm motor's behavior when unpowered
-	 * @param mode
+	 * @param mode {@link NeutralMode}
 	 */
 	public static void configArmNeutralMode(NeutralMode mode) {
 		mtrArm.setNeutralMode(mode);
@@ -75,7 +75,7 @@ public class Manipulator {
 
 	/**
 	 * Configure the intake motor's behavior when unpowered
-	 * @param mode
+	 * @param mode {@link NeutralMode}
 	 */
 	public static void configIntakeNeutralMode(NeutralMode mode) {
 		mtrIntake.setNeutralMode(mode);
@@ -110,7 +110,7 @@ public class Manipulator {
 	}
 
 	/**
-	 * un periodically to update
+	 * Run periodically to update this subsystem
 	 */
 	public static void periodic() {
 		if((isArmAtLowerLimit() && mArmPower < 0.0) || (isArmAtUpperLimit() && mArmPower > 0.0)) 

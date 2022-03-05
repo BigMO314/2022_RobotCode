@@ -13,118 +13,130 @@ import frc.robot.subsystem.Manipulator;
 
 public class Autonomous {
 	/**
-	 * Possible starting positions on the field
-	 */
-	private static enum Positions {
-		LEFT("Left"),
-		RIGHT("Right");
-
-		public final String label;
-		private Positions(String label) { this.label = label; }
-		@Override public String toString() { return label; }
-	}
-
-	/**
 	 * Possible Autonomous sequences to be run
 	 */
 	private static enum Sequences { 
-		DO_NOTHING("Do Nothing"),
-		SCORE("Score and Run"); 
+		DO_NOTHING("Do Nothing") {
+			@Override public void run() {
+				Drivetrain.disable();
+				Manipulator.disable();
+			}
+		}, 
+		SCORE("Simple Score") {
+			@Override public void run() {
+				switch(mStage) {
+					case 0:
+						Console.logMsg("Starting Sequence \"" + Sequences.SCORE.toString() + "\" - " + mSelectedPosition.toString());
+						tmrStage.reset();
+						tmrStage.start();
+						mStage++;
+						break;
+					case 1:
+						Console.logMsg("Reversing Intkae for 1 second...");
+						Manipulator.reverseIntake();
+						mStage++;
+						break;
+					case 2:
+						if(tmrStage.hasElapsed(1.0)) mStage++;
+						break;
+					case 3:
+						Console.logMsg("One second has passed. disable Intake.");
+						Manipulator.disableIntake();
+						Console.logMsg("Driving backward at 50% for one second...");
+						Drivetrain.setDrive(-0.5, -0.5);
+						tmrStage.reset();
+						mStage++;
+						break;
+					case 4:
+						if(tmrStage.hasElapsed(1.0)) mStage++;
+						break;
+					case 5:
+						Console.logMsg("One second has passes. Stop Driving.");
+						Drivetrain.disable();
+						Console.logMsg("Sequence Completed \"" + Sequences.SCORE.toString() + "\"");
+						mStage++;
+						break;
+					default:
+						Drivetrain.disable();
+						Manipulator.disable();
+						break;
+				}
+			}
+		}; 
+
+		public abstract void run();
 
 		public final String label;
 		private Sequences(String label) { this.label = label; }
 		@Override public String toString() { return label; }
 	}
 
-	private static final NetworkTable tblAutonomous = tblPeriods.getSubTable("Autonomous");
-	private static final Option<Positions> optPosition = new Option<Positions>(tblAutonomous, "Position", Positions.LEFT);
-	private static final Option<Sequences> optSequence = new Option<Sequences>(tblAutonomous, "Sequence", Sequences.DO_NOTHING);
+	/**
+	 * Possible starting positions on the field
+	 */
+	private static enum Positions {
+		LEFT("Left Side"),
+		RIGHT("Right Side");
 
-	private static Positions mSelectedPosition;
+		public final String label;
+		private Positions(String label) { this.label = label; }
+		@Override public String toString() { return label; }
+	}
+
+	private static final NetworkTable tblAutonomous = tblPeriods.getSubTable("Autonomous");
+	private static final Option<Sequences> optSequence = new Option<Sequences>(tblAutonomous, "Sequence", Sequences.DO_NOTHING);
+	private static final Option<Positions> optPosition = new Option<Positions>(tblAutonomous, "Position", Positions.LEFT);
+
 	private static Sequences mSelectedSequence;
+	private static Positions mSelectedPosition;
 	private static Timer tmrStage = new Timer();
 	private static int mStage = 0;
 
 	private Autonomous() {}
 
 	/**
-	 * Get ready for Autonomous Period. Collect any data from the dashboard, initialize any last minute systems, etc.
+	 * Get ready for the Autonomous Period.
+	 * Collect any data from the dashboard, initialize any last minute systems, etc.
 	 */
 	public static void init() {
 		Console.logMsg("Autonomous Period Initializing...");
 
-		mSelectedPosition = optPosition.get();
+		//Get selected options from Dashboard
 		mSelectedSequence = optSequence.get();
+		mSelectedPosition = optPosition.get();
 
+		//Reset stage data
 		tmrStage.reset();
 		mStage = 0;
 
-		Console.logMsg("Starting Position: " + mSelectedPosition.toString());
-		Console.logMsg("Autonomous Sequence: " + mSelectedSequence.toString());
-
+		//Configure Brake/Coast mode for all systems
+		Drivetrain.configDriveNeutralMode(NeutralMode.Brake);
 		Manipulator.configArmNeutralMode(NeutralMode.Brake);
+		Manipulator.configIntakeNeutralMode(NeutralMode.Coast);
 	}
 
 	/**
-	 * Preload dashboard values
+	 * Dashboard initialization run once after a connection to NetworkTables has been established
 	 */
 	public static void initDashboard() {
 		optPosition.init();
 		optSequence.init();
 	}
 
-	private static void autonSCORE(){
-		switch(mStage) {
-			case 0:
-				Console.logMsg("Starting Sequence [SCORE]");
-				tmrStage.reset();
-				tmrStage.start();
-				mStage++;
-				break;
-			case 1:
-				Console.logMsg("Reversing Intkae for 1 second...");
-				Manipulator.reverseIntake();
-				mStage++;
-				break;
-			case 2:
-				if(tmrStage.hasElapsed(1.0)) mStage++;
-				break;
-			case 3:
-				Console.logMsg("One second has passed. disable Intake.");
-				Manipulator.disableIntake();
-				Console.logMsg("Driving backward for one second...");
-				Drivetrain.setDrive(-0.5, -0.5);
-				tmrStage.reset();
-				mStage++;
-				break;
-			case 4:
-				if(tmrStage.hasElapsed(1.0)) mStage++;
-				break;
-			case 5:
-				Console.logMsg("One second has passes. Stop Driving.");
-				Drivetrain.disable();
-				Console.logMsg("Sequence Completed [SCORE]");
-				mStage++;
-				break;
-			default:
-				Drivetrain.disable();
-				Manipulator.disable();
-				break;
-		}
-	}
-
-
+	/**
+	 * Run periodically to update subsystems
+	 */
 	public static void periodic() {
-		switch(mSelectedSequence) {
-			case SCORE:
-				autonSCORE();
-				break;
-			default: //If "DO_NOTHING" is selected or selected sequence does not appear here, just stop the robot
-				Drivetrain.disable();
-				Manipulator.disable();
-				break;
+		//Run the selected sequence
+		if(mSelectedSequence != null) {
+			mSelectedSequence.run();
+		} else {
+			//If no sequence is selected, disable all systems
+			Drivetrain.disable();
+			Manipulator.disable();
 		}
 
+		//Subsystem updates
 		Drivetrain.periodic();
 		Manipulator.periodic();
 	}

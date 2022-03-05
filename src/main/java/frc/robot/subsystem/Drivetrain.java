@@ -45,7 +45,7 @@ public class Drivetrain {
 	}
 
 	/**
-	 * Dashboard initialization run when the robot is started
+	 * Dashboard initialization run once after a connection to NetworkTables has been established
 	 */
 	public static void initDashboard() {
 		
@@ -55,7 +55,7 @@ public class Drivetrain {
 
 	/**
 	 * Configure the drive motors' behavior when unpowered
-	 * @param mode
+	 * @param mode {@link NeutralMode}
 	 */
 	public static final void configDriveNeutralMode(NeutralMode mode) {
 		mtrDrive_L1.setNeutralMode(mode);
@@ -68,8 +68,8 @@ public class Drivetrain {
 
 	/**
 	 * Set the power to each of the drive motors
-	 * @param leftPower
-	 * @param rightPower
+	 * @param leftPower		Left side power
+	 * @param rightPower	Right side power
 	 */
 	public static void setDrive(double leftPower, double rightPower) {
 		mLeftPower = leftPower;
@@ -91,7 +91,7 @@ public class Drivetrain {
 	}
 
 	/**
-	 * Run periodically to update
+	 * Run periodically to update this subsystem
 	 */
 	public static void periodic() {
 		mtrDrive_L1.set(ControlMode.PercentOutput, mLeftPower);

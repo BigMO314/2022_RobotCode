@@ -30,7 +30,7 @@ public class Teleoperated {
 	}
 
 	private static final NetworkTable tblTeleoperated = tblPeriods.getSubTable("Teleoperated");
-	private static final Option<DriveStyles> optDriveStyle = new Option<DriveStyles>(tblTeleoperated, "Drive Style", DriveStyles.CHEESY);
+	private static final Option<DriveStyles> optDriveStyle = new Option<DriveStyles>(tblTeleoperated, "Driving Control Style", DriveStyles.CHEESY);
 
 	private static DriveStyles mSelectedDriveStyle;
 
@@ -39,30 +39,52 @@ public class Teleoperated {
 
 	private Teleoperated() {}
 
+	/**
+	 * Get ready for the Teleoperated Period.
+	 * Collect any data from the dashboard, initialize any last minute systems, etc.
+	 */
 	public static void init() {
 		Console.logMsg("Teleoperated Period Initializing...");
 
+		//Get selected options from Dashboard
 		mSelectedDriveStyle = optDriveStyle.get();
 
+		//Configure Brake/Coast mode for all systems
+		Drivetrain.configDriveNeutralMode(NeutralMode.Brake);
 		Manipulator.configArmNeutralMode(NeutralMode.Brake);
+		Manipulator.configIntakeNeutralMode(NeutralMode.Coast);
 	}
 
 	/**
-	 * Preload dashboard values
+	 * Dashboard initialization run once after a connection to NetworkTables has been established
 	 */
 	public static void initDashboard() {
 		optDriveStyle.init();
 	}
 
+	/**
+	 * Set Power to the Drivetrain through left and right values
+	 * @param leftPower		Left side power
+	 * @param rightPower	Right side power
+	 */
 	private static void setTankDrive(double leftPower, double rightPower) {
 		Drivetrain.setDrive(leftPower, rightPower);
 	}
 	
+	/**
+	 * Set power to the Drivetrain through a throttle and steering value
+	 * @param throttle	Forward power 
+	 * @param steering	Turning power
+	 */
 	private static void setArcadeDrive(double throttle, double steering) {
 		Drivetrain.setDrive(throttle + steering, throttle - steering);
 	}
 
+	/**
+	 * Run periodically to update subsystems
+	 */
 	public static void periodic() {
+		//Switch between Drive control styles
 		switch(mSelectedDriveStyle) {
 			case CHEESY:
 				if(ctlDriver.getLeftTrigger())
@@ -86,6 +108,7 @@ public class Teleoperated {
 				Drivetrain.disable();
 		}
 		
+		//Arm controls
 		if(ctlDriver.getRightBumper() || ctlOperator.getRightBumper())
 			Manipulator.raiseArm();
 		else if(ctlDriver.getLeftBumper() || ctlOperator.getLeftBumper())
@@ -93,6 +116,7 @@ public class Teleoperated {
 		else
 			Manipulator.disableArm();
 
+		//Intake controls
 		if(ctlDriver.getAButton() || ctlOperator.getAButton())
 			Manipulator.reverseIntake();
 		else if(ctlDriver.getRightTrigger() || ctlOperator.getRightTrigger())
@@ -100,6 +124,7 @@ public class Teleoperated {
 		else
 			Manipulator.disableIntake();
 
+		//Subsystem updates
 		Drivetrain.periodic();
 		Manipulator.periodic();
 	}

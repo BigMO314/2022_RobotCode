@@ -20,23 +20,29 @@ public class Test {
 
 	private Test() {}
 
+	/**
+	 * Get ready for the Test Period.
+	 * Collect any data from the dashboard, initialize any last minute systems, etc.
+	 */
 	public static void init() {
 		Console.logMsg("Test Period Initializing...");
 
+		//Disable Arm and Intake on Test Period start
 		entArm_Enabled.set(false);
 		entIntake_Enabled.set(false);
+		
+		//Configure Brake/Coast mode for all subsystems
+		Drivetrain.configDriveNeutralMode(NeutralMode.Brake);
+		Manipulator.configArmNeutralMode(NeutralMode.Brake);
+		Manipulator.configIntakeNeutralMode(NeutralMode.Coast);
 
-		Manipulator.init();
-		Drivetrain.init();
-
+		//Disable all subsystems to start
 		Manipulator.disable();
 		Drivetrain.disable();
-		
-		Manipulator.configArmNeutralMode(NeutralMode.Brake);
 	}
 
 	/**
-	 * Preload dashboard values
+	 * Dashboard initialization run once after a connection to NetworkTables has been established
 	 */
 	public static void initDashboard() {
 		entArm_Enabled.set(false);
@@ -45,18 +51,23 @@ public class Test {
 		entIntake_Power.set(0.0);
 	}
 
+	/**
+	 * Run periodically to update subsystems
+	 */
 	public static void periodic() {
+		//Arm Controls
 		if(entArm_Enabled.get())
 			Manipulator.setArmPower(entArm_Power.get());
 		else
 			Manipulator.disableArm();
 
+		//Intake Controls
 		if(entIntake_Enabled.get())
 			Manipulator.setIntakePower(entIntake_Power.get());
 		else	
 			Manipulator.disableIntake();
 
-
+		//Subsystem Updates
 		Drivetrain.periodic();
 		Manipulator.periodic();
 	}
