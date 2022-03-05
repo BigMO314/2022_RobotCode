@@ -3,6 +3,7 @@ package frc.robot.subsystem;
 import static frc.robot.Robot.tblSubsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.networktables.NetworkTable;
@@ -24,6 +25,11 @@ public class Drivetrain {
 
 	private Drivetrain() {}
 
+////Initialization
+
+	/**
+	 * Initialization code run when the robot is started
+	 */
 	public static void init() {
 		Console.logMsg("Drivetrain Initializing...");
 
@@ -31,22 +37,62 @@ public class Drivetrain {
 		mtrDrive_L2.setInverted(false);
 		mtrDrive_R1.setInverted(true);
 		mtrDrive_R2.setInverted(true);
+
+		mtrDrive_L1.setNeutralMode(NeutralMode.Brake);
+		mtrDrive_L2.setNeutralMode(NeutralMode.Brake);
+		mtrDrive_R1.setNeutralMode(NeutralMode.Brake);
+		mtrDrive_R2.setNeutralMode(NeutralMode.Brake);
 	}
 
 	/**
-	 * Preload dashboard values
+	 * Dashboard initialization run when the robot is started
 	 */
 	public static void initDashboard() {
 		
 	}
 
-	public static void disable() { setDrive(0.0, 0.0); }
+//Configuration
 
+	/**
+	 * Configure the drive motors' behavior when unpowered
+	 * @param mode
+	 */
+	public static final void configDriveNeutralMode(NeutralMode mode) {
+		mtrDrive_L1.setNeutralMode(mode);
+		mtrDrive_L2.setNeutralMode(mode);
+		mtrDrive_R1.setNeutralMode(mode);
+		mtrDrive_R2.setNeutralMode(mode);
+	}
+
+////Drive Control
+
+	/**
+	 * Set the power to each of the drive motors
+	 * @param leftPower
+	 * @param rightPower
+	 */
 	public static void setDrive(double leftPower, double rightPower) {
 		mLeftPower = leftPower;
 		mRightPower = rightPower;
 	}
 
+	/**
+	 * Disable the drive motors
+	 */
+	public static void disableDrive() { setDrive(0.0, 0.0); }
+
+////Subsystem Methods
+
+	/**
+	 * Disable the entire Drivetrain Subsystem
+	 */
+	public static void disable() { 
+		disableDrive();
+	}
+
+	/**
+	 * Run periodically to update
+	 */
 	public static void periodic() {
 		mtrDrive_L1.set(ControlMode.PercentOutput, mLeftPower);
 		mtrDrive_L2.set(ControlMode.PercentOutput, mLeftPower);

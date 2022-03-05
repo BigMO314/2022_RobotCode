@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -35,6 +37,7 @@ public class Robot extends TimedRobot {
 		Console.logMsg("*****Robot Initialization Starting*****");
 		Console.logMsg("Establishing NetworkTable Connection...");
 		while(!NetworkTableInstance.getDefault().isConnected()) {}
+		NetworkTableInstance.getDefault().deleteAllEntries();
 
 		Console.logMsg("*****Initializing Subsystems***********");
 		Drivetrain.init();
@@ -54,6 +57,11 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotPeriodic() {
 		ButtonManager.updateValues();
+	}
+
+	@Override
+	public void disabledInit() {
+		Manipulator.configArmNeutralMode(NeutralMode.Coast);
 	}
 
 	@Override

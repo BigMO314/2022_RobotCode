@@ -2,6 +2,8 @@ package frc.robot.period;
 
 import static frc.robot.Robot.tblPeriods;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.Timer;
 import frc.molib.dashboard.Option;
@@ -27,7 +29,7 @@ public class Autonomous {
 	 */
 	private static enum Sequences { 
 		DO_NOTHING("Do Nothing"),
-		TEST("Test"); 
+		SCORE("Score and Run"); 
 
 		public final String label;
 		private Sequences(String label) { this.label = label; }
@@ -59,6 +61,8 @@ public class Autonomous {
 
 		Console.logMsg("Starting Position: " + mSelectedPosition.toString());
 		Console.logMsg("Autonomous Sequence: " + mSelectedSequence.toString());
+
+		Manipulator.configArmNeutralMode(NeutralMode.Brake);
 	}
 
 	/**
@@ -69,29 +73,37 @@ public class Autonomous {
 		optSequence.init();
 	}
 
-	private static void autonFORWARD() {
-		switch(mStage){
+	private static void autonSCORE(){
+		switch(mStage) {
 			case 0:
-				Console.logMsg("Starting Sequence [TEST]");
+				Console.logMsg("Starting Sequence [SCORE]");
 				tmrStage.reset();
 				tmrStage.start();
 				mStage++;
 				break;
 			case 1:
-				Console.logMsg("Driving forward at 20% power.");
-				Drivetrain.setDrive(0.2, 0.2);
+				Console.logMsg("Reversing Intkae for 1 second...");
+				Manipulator.reverseIntake();
 				mStage++;
 				break;
 			case 2:
-				if(tmrStage.hasElapsed(2.0)) mStage++;
+				if(tmrStage.hasElapsed(1.0)) mStage++;
 				break;
 			case 3:
-				Console.logMsg("Two seconds have passed. Stop driving.");
-				Drivetrain.disable();
+				Console.logMsg("One second has passed. disable Intake.");
+				Manipulator.disableIntake();
+				Console.logMsg("Driving backward for one second...");
+				Drivetrain.setDrive(-0.5, -0.5);
+				tmrStage.reset();
 				mStage++;
 				break;
 			case 4:
-				Console.logMsg("Ending Sequence [TEST]");
+				if(tmrStage.hasElapsed(1.0)) mStage++;
+				break;
+			case 5:
+				Console.logMsg("One second has passes. Stop Driving.");
+				Drivetrain.disable();
+				Console.logMsg("Sequence Completed [SCORE]");
 				mStage++;
 				break;
 			default:
@@ -104,8 +116,8 @@ public class Autonomous {
 
 	public static void periodic() {
 		switch(mSelectedSequence) {
-			case TEST:
-				autonFORWARD();
+			case SCORE:
+				autonSCORE();
 				break;
 			default: //If "DO_NOTHING" is selected or selected sequence does not appear here, just stop the robot
 				Drivetrain.disable();
