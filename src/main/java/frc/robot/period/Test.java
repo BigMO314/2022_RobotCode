@@ -52,6 +52,13 @@ public class Test {
 	}
 
 	/**
+	 * Run periodically to push new values to the Dashboard
+	 */
+	public static void updateDashboard() {
+		
+	}
+
+	/**
 	 * Run periodically to update subsystems
 	 */
 	public static void periodic() {

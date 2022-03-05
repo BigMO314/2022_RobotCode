@@ -48,7 +48,15 @@ public class Drivetrain {
 	 * Dashboard initialization run once after a connection to NetworkTables has been established
 	 */
 	public static void initDashboard() {
-		
+
+	}
+
+	/**
+	 * Run periodically to push new values to the Dashboard
+	 */
+	public static void updateDashboard() {
+		entDrive_L_Power.set(mLeftPower);
+		entDrive_R_Power.set(mRightPower);
 	}
 
 //Configuration
@@ -98,8 +106,5 @@ public class Drivetrain {
 		mtrDrive_L2.set(ControlMode.PercentOutput, mLeftPower);
 		mtrDrive_R1.set(ControlMode.PercentOutput, mRightPower);
 		mtrDrive_R2.set(ControlMode.PercentOutput, mRightPower);
-
-		entDrive_L_Power.set(mLeftPower);
-		entDrive_R_Power.set(mRightPower);
 	}
 }

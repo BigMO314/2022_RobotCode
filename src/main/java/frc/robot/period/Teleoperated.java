@@ -63,6 +63,13 @@ public class Teleoperated {
 	}
 
 	/**
+	 * Run periodically to push new values to the Dashboard
+	 */
+	public static void updateDashboard() {
+		
+	}
+
+	/**
 	 * Set Power to the Drivetrain through left and right values
 	 * @param leftPower		Left side power
 	 * @param rightPower	Right side power
@@ -84,6 +91,8 @@ public class Teleoperated {
 	 * Run periodically to update subsystems
 	 */
 	public static void periodic() {
+		mSelectedDriveStyle = optDriveStyle.get();
+
 		//Switch between Drive control styles
 		switch(mSelectedDriveStyle) {
 			case CHEESY:

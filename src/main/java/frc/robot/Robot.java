@@ -44,9 +44,9 @@ public class Robot extends TimedRobot {
 		Manipulator.init();
 
 		Console.logMsg("*****Initializing Dashboard************");
-		Test.initDashboard();
 		Autonomous.initDashboard();
 		Teleoperated.initDashboard();
+		Test.initDashboard();
 
 		Drivetrain.initDashboard();
 		Manipulator.initDashboard();
@@ -57,11 +57,23 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotPeriodic() {
 		ButtonManager.updateValues();
+
+		Autonomous.updateDashboard();
+		Teleoperated.updateDashboard();
+		Test.updateDashboard();
+		
+		Drivetrain.updateDashboard();
+		Manipulator.updateDashboard();
 	}
 
 	@Override
 	public void disabledInit() {
 		Manipulator.configArmNeutralMode(NeutralMode.Coast);
+	}
+
+	@Override
+	public void disabledPeriodic() {
+		
 	}
 
 	@Override

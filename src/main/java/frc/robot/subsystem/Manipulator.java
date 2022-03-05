@@ -57,6 +57,13 @@ public class Manipulator {
 	 * Dashboard initialization run once after a connection to NetworkTables has been established
 	 */
 	public static void initDashboard() {
+		
+	}
+
+	/**
+	 * Run periodically to push new values to the Dashboard
+	 */
+	public static void updateDashboard() {
 		entArm_Power.set(getArmPower());
 		entIntake_Power.set(getIntakePower());
 		entArm_U_AtLimit.set(isArmAtUpperLimit());
