@@ -14,8 +14,8 @@ import frc.molib.utilities.Console;
 
 public class Manipulator {
 	private static final class PowerConstants {
-		public static final double ARM_RAISE = 0.5;
-		public static final double ARM_LOWER = -0.25;
+		public static final double ARM_RAISE = 0.75;
+		public static final double ARM_LOWER = -0.75;
 
 		public static final double INTAKE_ENABLE = 0.75;
 		public static final double INTAKE_REVERSE = -1.0;

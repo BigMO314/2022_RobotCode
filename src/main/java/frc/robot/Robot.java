@@ -6,6 +6,8 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -27,6 +29,8 @@ public class Robot extends TimedRobot {
 	public static final NetworkTable tblMain = NetworkTableInstance.getDefault().getTable("MO Data");
 	public static final NetworkTable tblPeriods = tblMain.getSubTable("Control Periods");
 	public static final NetworkTable tblSubsystems = tblMain.getSubTable("Subsystems");
+
+	private static UsbCamera cam1;
 
 	/**
 	 * This function is run when the robot is first started up and should be used for any
@@ -51,6 +55,11 @@ public class Robot extends TimedRobot {
 		Drivetrain.initDashboard();
 		Manipulator.initDashboard();
 
+		Console.logMsg("*****Initializing Cameras**************");
+		cam1 = CameraServer.startAutomaticCapture("Camera 1", 0);
+		cam1.setFPS(15);
+		cam1.setResolution(160, 100);
+
 		Console.logMsg("*****Robot Initialization Complete*****");
 	}
 
@@ -73,7 +82,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void disabledPeriodic() {
-		
+
 	}
 
 	@Override

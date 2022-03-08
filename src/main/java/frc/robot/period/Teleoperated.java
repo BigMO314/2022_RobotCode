@@ -97,21 +97,21 @@ public class Teleoperated {
 		switch(mSelectedDriveStyle) {
 			case CHEESY:
 				if(ctlDriver.getLeftTrigger())
-					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.LOW, ctlDriver.getRightX() * SpeedMultiplier.LOW);
-				else
 					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.STANDARD, ctlDriver.getRightX() * SpeedMultiplier.STANDARD);
+				else
+					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.LOW, ctlDriver.getRightX() * SpeedMultiplier.LOW);
 				break;
 			case ARCADE:
 				if(ctlDriver.getLeftTrigger())
-					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.LOW, ctlDriver.getLeftX() * SpeedMultiplier.LOW);
-				else
 					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.STANDARD, ctlDriver.getLeftX() * SpeedMultiplier.STANDARD);
+				else
+					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.LOW, ctlDriver.getLeftX() * SpeedMultiplier.LOW);
 				break;
 			case TANK:
 				if(ctlDriver.getLeftTrigger())
-					setTankDrive(ctlDriver.getLeftY() * SpeedMultiplier.LOW, ctlDriver.getRightY() * SpeedMultiplier.LOW);
-				else
 					setTankDrive(ctlDriver.getLeftY() * SpeedMultiplier.STANDARD, ctlDriver.getRightY() * SpeedMultiplier.STANDARD);
+				else
+					setTankDrive(ctlDriver.getLeftY() * SpeedMultiplier.LOW, ctlDriver.getRightY() * SpeedMultiplier.LOW);
 				break;
 			default:
 				Drivetrain.disable();
