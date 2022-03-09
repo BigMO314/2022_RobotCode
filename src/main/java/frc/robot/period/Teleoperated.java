@@ -25,8 +25,7 @@ public class Teleoperated {
 
 	private static final class SpeedMultiplier {
 		public static final double LOW = 0.25;
-		public static final double STANDARD = 0.75;
-		public static final double HIGH = 1.0; //Unused
+		public static final double HIGH = 0.75;
 	}
 
 	private static final NetworkTable tblTeleoperated = tblPeriods.getSubTable("Teleoperated");
@@ -97,19 +96,19 @@ public class Teleoperated {
 		switch(mSelectedDriveStyle) {
 			case CHEESY:
 				if(ctlDriver.getLeftTrigger())
-					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.STANDARD, ctlDriver.getRightX() * SpeedMultiplier.STANDARD);
+					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.HIGH, ctlDriver.getRightX() * SpeedMultiplier.HIGH);
 				else
 					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.LOW, ctlDriver.getRightX() * SpeedMultiplier.LOW);
 				break;
 			case ARCADE:
 				if(ctlDriver.getLeftTrigger())
-					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.STANDARD, ctlDriver.getLeftX() * SpeedMultiplier.STANDARD);
+					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.HIGH, ctlDriver.getLeftX() * SpeedMultiplier.HIGH);
 				else
 					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.LOW, ctlDriver.getLeftX() * SpeedMultiplier.LOW);
 				break;
 			case TANK:
 				if(ctlDriver.getLeftTrigger())
-					setTankDrive(ctlDriver.getLeftY() * SpeedMultiplier.STANDARD, ctlDriver.getRightY() * SpeedMultiplier.STANDARD);
+					setTankDrive(ctlDriver.getLeftY() * SpeedMultiplier.HIGH, ctlDriver.getRightY() * SpeedMultiplier.HIGH);
 				else
 					setTankDrive(ctlDriver.getLeftY() * SpeedMultiplier.LOW, ctlDriver.getRightY() * SpeedMultiplier.LOW);
 				break;

@@ -42,13 +42,13 @@ public class Autonomous {
 					case 3:
 						Console.logMsg("One second has passed. disable Intake.");
 						Manipulator.disableIntake();
-						Console.logMsg("Driving backward at 50% for one second...");
-						Drivetrain.setDrive(-0.5, -0.5);
+						Console.logMsg("Driving backward at 20% for 0.75 seconds...");
+						Drivetrain.setDrive(-0.4, -0.4);
 						tmrStage.reset();
 						mStage++;
 						break;
 					case 4:
-						if(tmrStage.hasElapsed(1.0)) mStage++;
+						if(tmrStage.hasElapsed(1.125)) mStage++;
 						break;
 					case 5:
 						Console.logMsg("One second has passes. Stop Driving.");
