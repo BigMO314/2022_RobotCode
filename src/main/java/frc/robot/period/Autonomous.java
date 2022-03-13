@@ -11,66 +11,11 @@ import frc.molib.utilities.Console;
 import frc.robot.subsystem.Drivetrain;
 import frc.robot.subsystem.Manipulator;
 
+/**
+ * The class that handles all robot control during the Autonomous period of the game.
+ * <i>All calls to this class should be done statically</i>
+ */
 public class Autonomous {
-	/**
-	 * Possible Autonomous sequences to be run
-	 */
-	private static enum Sequences { 
-		DO_NOTHING("Do Nothing") {
-			@Override public void run() {
-				Drivetrain.disable();
-				Manipulator.disable();
-			}
-		}, 
-		SCORE("Simple Score") {
-			@Override public void run() {
-				switch(mStage) {
-					case 0:
-						Console.logMsg("Starting Sequence \"" + Sequences.SCORE.toString() + "\" - " + mSelectedPosition.toString());
-						tmrStage.reset();
-						tmrStage.start();
-						mStage++;
-						break;
-					case 1:
-						Console.logMsg("Reversing Intkae for 1 second...");
-						Manipulator.reverseIntake();
-						mStage++;
-						break;
-					case 2:
-						if(tmrStage.hasElapsed(1.0)) mStage++;
-						break;
-					case 3:
-						Console.logMsg("One second has passed. disable Intake.");
-						Manipulator.disableIntake();
-						Console.logMsg("Driving backward at 20% for 0.75 seconds...");
-						Drivetrain.setDrive(-0.4, -0.4);
-						tmrStage.reset();
-						mStage++;
-						break;
-					case 4:
-						if(tmrStage.hasElapsed(1.125)) mStage++;
-						break;
-					case 5:
-						Console.logMsg("One second has passes. Stop Driving.");
-						Drivetrain.disable();
-						Console.logMsg("Sequence Completed \"" + Sequences.SCORE.toString() + "\"");
-						mStage++;
-						break;
-					default:
-						Drivetrain.disable();
-						Manipulator.disable();
-						break;
-				}
-			}
-		}; 
-
-		public abstract void run();
-
-		public final String label;
-		private Sequences(String label) { this.label = label; }
-		@Override public String toString() { return label; }
-	}
-
 	/**
 	 * Possible starting positions on the field
 	 */
@@ -83,12 +28,125 @@ public class Autonomous {
 		@Override public String toString() { return label; }
 	}
 
-	private static final NetworkTable tblAutonomous = tblPeriods.getSubTable("Autonomous");
-	private static final Option<Sequences> optSequence = new Option<Sequences>(tblAutonomous, "Sequence", Sequences.DO_NOTHING);
-	private static final Option<Positions> optPosition = new Option<Positions>(tblAutonomous, "Position", Positions.LEFT);
+	/**
+	 * Possible Autonomous sequences to be run
+	 */
+	private static enum Sequences { 
+		DO_NOTHING("Do Nothing") {
+			@Override public void run() {
+				Drivetrain.disable();
+				Manipulator.disable();
+			}
+		}, 
+		DRIVE("Just Drive") {
+			@Override public void run() {
+				switch(mStage) {
+					case 0:
+						Console.logMsg("Starting Sequence \"" + Sequences.DRIVE.toString() + "\" - " + mSelectedPosition.toString());
+						tmrStage.reset();
+						tmrStage.start();
+						mStage++;
+						break;
+					case 1:
+						Console.logMsg("Waiting 5 seconds...");
+						mStage++;
+						break;
+					case 2:
+						if(tmrStage.hasElapsed(5.0)) mStage++;
+						break;
+					case 3:
+						Console.logMsg("Begin lowering arm and driving forward at 40% for 1.25 seconds...");
+						Manipulator.lowerArm();
+						Drivetrain.setDrive(0.4, 0.4);
+						tmrStage.reset();
+						mStage++;
+						break;
+					case 4:
+						if(tmrStage.hasElapsed(1.25)) mStage++;
+						break;
+					case 5:
+						Console.logMsg("Time has elapsed, stop driving. Waiting for Arm or time-out...");
+						Drivetrain.disable();
+						mStage++;
+						break;
+					case 6:
+						if(Manipulator.isArmAtLowerLimit() || tmrStage.hasElapsed(3.0)) mStage++;
+						break;
+					case 7:
+						Console.logMsg("Arm at lower limit, stop lowering.");
+						Manipulator.disableArm();
+						Console.logMsg("Sequence Completed \"" + Sequences.DRIVE.toString() + "\"");
+						mStage++;
+						break;
+					default:
+						Drivetrain.disable();
+						Manipulator.disable();
+				}
+			}
+		},
+		SCORE("Simple Score") {
+			@Override public void run() {
+				switch(mStage) {
+					case 0:
+						Console.logMsg("Starting Sequence \"" + Sequences.SCORE.toString() + "\" - " + mSelectedPosition.toString());
+						tmrStage.reset();
+						tmrStage.start();
+						mStage++;
+						break;
+					case 1:
+						Console.logMsg("Reversing Intkae for 1.0 second...");
+						Manipulator.reverseIntake();
+						tmrStage.reset();
+						mStage++;
+						break;
+					case 2:
+						if(tmrStage.hasElapsed(1.0)) mStage++;
+						break;
+					case 3:
+						Console.logMsg("Time has elapsed, disable Intake.");
+						Manipulator.disableIntake();
+						Console.logMsg("Waiting 5 seconds...");
+						tmrStage.reset();
+						mStage++;
+						break;
+					case 4:
+						if(tmrStage.hasElapsed(5.0)) mStage++;
+						break;
+					case 5:
+						Console.logMsg("Driving backward at 40% for 1.25 seconds...");
+						Drivetrain.setDrive(-0.4, -0.4);
+						tmrStage.reset();
+						mStage++;
+						break;
+					case 6:
+						if(tmrStage.hasElapsed(1.25)) mStage++;
+						break;
+					case 7:
+						Console.logMsg("Time has elapsed, stop driving.");
+						Drivetrain.disable();
+						Console.logMsg("Sequence Completed \"" + Sequences.SCORE.toString() + "\"");
+						mStage++;
+						break;
+					default:
+						Drivetrain.disable();
+						Manipulator.disable();
+				}
+			}
+		}; 
 
-	private static Sequences mSelectedSequence;
+		public abstract void run();
+
+		public final String label;
+		private Sequences(String label) { this.label = label; }
+		@Override public String toString() { return label; }
+	}
+
+	private static final NetworkTable tblAutonomous = tblPeriods.getSubTable("Autonomous");
+	private static final Option<Positions> optPosition = new Option<Positions>(tblAutonomous, "Position", Positions.LEFT);
+	private static final Option<Sequences> optSequence = new Option<Sequences>(tblAutonomous, "Sequence", Sequences.DO_NOTHING);
+
 	private static Positions mSelectedPosition;
+	private static Sequences mSelectedSequence;
 	private static Timer tmrStage = new Timer();
 	private static int mStage = 0;
 
@@ -102,8 +160,8 @@ public class Autonomous {
 		Console.logMsg("Autonomous Period Initializing...");
 
 		//Get selected options from Dashboard
-		mSelectedSequence = optSequence.get();
 		mSelectedPosition = optPosition.get();
+		mSelectedSequence = optSequence.get();
 
 		//Reset stage data
 		tmrStage.reset();

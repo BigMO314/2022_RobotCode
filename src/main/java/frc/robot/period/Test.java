@@ -10,6 +10,10 @@ import frc.molib.utilities.Console;
 import frc.robot.subsystem.Drivetrain;
 import frc.robot.subsystem.Manipulator;
 
+/**
+ * The class that handles all robot control during Test mode.
+ * <i>All calls to this class should be done statically</i>
+ */
 public class Test {
 	private static final NetworkTable tblTest = tblPeriods.getSubTable("Test");
 	

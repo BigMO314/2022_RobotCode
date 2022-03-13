@@ -38,10 +38,7 @@ public class Drivetrain {
 		mtrDrive_R1.setInverted(true);
 		mtrDrive_R2.setInverted(true);
 
-		mtrDrive_L1.setNeutralMode(NeutralMode.Brake);
-		mtrDrive_L2.setNeutralMode(NeutralMode.Brake);
-		mtrDrive_R1.setNeutralMode(NeutralMode.Brake);
-		mtrDrive_R2.setNeutralMode(NeutralMode.Brake);
+		configDriveNeutralMode(NeutralMode.Coast);
 	}
 
 	/**

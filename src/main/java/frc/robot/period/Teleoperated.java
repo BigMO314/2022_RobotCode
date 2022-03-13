@@ -11,7 +11,10 @@ import frc.molib.utilities.Console;
 import frc.robot.subsystem.Drivetrain;
 import frc.robot.subsystem.Manipulator;
 
-@SuppressWarnings("unused")
+/**
+ * The class that handles all robot control during the Teleoperated period of the game.
+ * <i>All calls to this class should be done statically</i>
+ */
 public class Teleoperated {
 	private static enum DriveStyles {
 		CHEESY("Cheesy Drive"),
@@ -23,13 +26,33 @@ public class Teleoperated {
 		@Override public String toString() { return label; }
 	}
 
-	private static final class SpeedMultiplier {
-		public static final double LOW = 0.25;
-		public static final double HIGH = 0.75;
+	private static enum StandardDriveSpeeds {
+		SLOW("Normal", 0.25),
+		FAST("Boosted", 0.40);
+
+		public final String label;
+		public final double multiplier;
+
+		private StandardDriveSpeeds (String label, double multiplier) {
+			this.label = label;
+			this.multiplier = multiplier;
+		}
+
+		@Override public String toString() { return label; }
 	}
+
+	private static final class SpeedMultiplier {
+		public static double STANDARD = 0.25;
+		public static double HIGH = 0.75;
+	}
+
+	public static double mStandardSpeed;
+	public static double mHighSpeed;
 
 	private static final NetworkTable tblTeleoperated = tblPeriods.getSubTable("Teleoperated");
 	private static final Option<DriveStyles> optDriveStyle = new Option<DriveStyles>(tblTeleoperated, "Driving Control Style", DriveStyles.CHEESY);
+	private static final Option<StandardDriveSpeeds> optStandardDriveSpeed = new Option<StandardDriveSpeeds>(tblTeleoperated, "Standard Drive Speed", StandardDriveSpeeds.SLOW);
+
 
 	private static DriveStyles mSelectedDriveStyle;
 
@@ -47,6 +70,7 @@ public class Teleoperated {
 
 		//Get selected options from Dashboard
 		mSelectedDriveStyle = optDriveStyle.get();
+		SpeedMultiplier.STANDARD = optStandardDriveSpeed.get().multiplier;
 
 		//Configure Brake/Coast mode for all systems
 		Drivetrain.configDriveNeutralMode(NeutralMode.Brake);
@@ -59,6 +83,7 @@ public class Teleoperated {
 	 */
 	public static void initDashboard() {
 		optDriveStyle.init();
+		optStandardDriveSpeed.init();
 	}
 
 	/**
@@ -91,26 +116,29 @@ public class Teleoperated {
 	 */
 	public static void periodic() {
 		mSelectedDriveStyle = optDriveStyle.get();
+		SpeedMultiplier.STANDARD = optStandardDriveSpeed.get().multiplier;
 
 		//Switch between Drive control styles
-		switch(mSelectedDriveStyle) {
+		if(ctlDriver.getStartButton() && ctlDriver.getBackButton())
+			setTankDrive(-0.25, -0.25);
+		else switch(mSelectedDriveStyle) {
 			case CHEESY:
 				if(ctlDriver.getLeftTrigger())
 					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.HIGH, ctlDriver.getRightX() * SpeedMultiplier.HIGH);
 				else
-					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.LOW, ctlDriver.getRightX() * SpeedMultiplier.LOW);
+					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.STANDARD, ctlDriver.getRightX() * SpeedMultiplier.STANDARD);
 				break;
 			case ARCADE:
 				if(ctlDriver.getLeftTrigger())
 					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.HIGH, ctlDriver.getLeftX() * SpeedMultiplier.HIGH);
 				else
-					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.LOW, ctlDriver.getLeftX() * SpeedMultiplier.LOW);
+					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.STANDARD, ctlDriver.getLeftX() * SpeedMultiplier.STANDARD);
 				break;
 			case TANK:
 				if(ctlDriver.getLeftTrigger())
 					setTankDrive(ctlDriver.getLeftY() * SpeedMultiplier.HIGH, ctlDriver.getRightY() * SpeedMultiplier.HIGH);
 				else
-					setTankDrive(ctlDriver.getLeftY() * SpeedMultiplier.LOW, ctlDriver.getRightY() * SpeedMultiplier.LOW);
+					setTankDrive(ctlDriver.getLeftY() * SpeedMultiplier.STANDARD, ctlDriver.getRightY() * SpeedMultiplier.STANDARD);
 				break;
 			default:
 				Drivetrain.disable();
