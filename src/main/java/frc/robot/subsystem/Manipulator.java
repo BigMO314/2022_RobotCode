@@ -30,6 +30,7 @@ public class Manipulator {
 	private static final DigitalInput limArm_U2 = new DigitalInput(2);
 
 	private static final DigitalInput phoArm_L = new DigitalInput(3);
+	private static final DigitalInput phoArm_U = new DigitalInput(4);
 
 	private static final NetworkTable tblManipulator = tblSubsystems.getSubTable("Manipulator");
 	private static final Entry<Double> entArm_Power = new Entry<Double>(tblManipulator, "Arm Power");
@@ -115,7 +116,7 @@ public class Manipulator {
 ////Arm Control
 	public static double getArmPower() { return mArmPower; }
 	public static double getIntakePower() { return mIntakePower; }
-	public static boolean isArmAtUpperLimit() { return !limArm_U1.get() || !limArm_U2.get(); }
+	public static boolean isArmAtUpperLimit() { return !limArm_U1.get() || !limArm_U2.get() || phoArm_U.get(); }
 	public static boolean isArmAtLowerLimit() { return !limArm_L.get() || phoArm_L.get(); }
 	public static double getArmPosition() { return mtrArm.getSelectedSensorPosition(); }
 
@@ -149,6 +150,7 @@ public class Manipulator {
 			disableArm();
 
 		if(isArmAtUpperLimit()) mtrArm.setSelectedSensorPosition(0.0);
+		if(isArmAtLowerLimit()) mtrArm.setSelectedSensorPosition(-300000.0);
 
 		mtrArm.set(ControlMode.PercentOutput, mArmPower);
 		mtrIntake.set(ControlMode.PercentOutput, mIntakePower);

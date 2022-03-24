@@ -27,8 +27,8 @@ public class Teleoperated {
 	}
 
 	private static enum StandardDriveSpeeds {
-		SLOW("Normal", 0.25),
-		FAST("Boosted", 0.40);
+		SLOW("Normal", 0.40),
+		FAST("Boosted", 0.60);
 
 		public final String label;
 		public final double multiplier;
@@ -42,7 +42,8 @@ public class Teleoperated {
 	}
 
 	private static final class SpeedMultiplier {
-		public static double STANDARD = 0.25;
+		public static double LOW = 0.25;
+		public static double STANDARD = 0.40;
 		public static double HIGH = 0.75;
 	}
 
@@ -125,18 +126,24 @@ public class Teleoperated {
 			case CHEESY:
 				if(ctlDriver.getLeftTrigger())
 					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.HIGH, ctlDriver.getRightX() * SpeedMultiplier.HIGH);
+				else if(ctlDriver.getRightTrigger())
+					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.LOW, ctlDriver.getRightX() * SpeedMultiplier.LOW);
 				else
 					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.STANDARD, ctlDriver.getRightX() * SpeedMultiplier.STANDARD);
 				break;
 			case ARCADE:
 				if(ctlDriver.getLeftTrigger())
 					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.HIGH, ctlDriver.getLeftX() * SpeedMultiplier.HIGH);
+				else if(ctlDriver.getRightTrigger())
+					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.LOW, ctlDriver.getLeftX() * SpeedMultiplier.LOW);
 				else
 					setArcadeDrive(ctlDriver.getLeftY() * SpeedMultiplier.STANDARD, ctlDriver.getLeftX() * SpeedMultiplier.STANDARD);
 				break;
 			case TANK:
 				if(ctlDriver.getLeftTrigger())
 					setTankDrive(ctlDriver.getLeftY() * SpeedMultiplier.HIGH, ctlDriver.getRightY() * SpeedMultiplier.HIGH);
+				else if(ctlDriver.getRightTrigger())
+					setTankDrive(ctlDriver.getLeftY() * SpeedMultiplier.LOW, ctlDriver.getRightY() * SpeedMultiplier.LOW);
 				else
 					setTankDrive(ctlDriver.getLeftY() * SpeedMultiplier.STANDARD, ctlDriver.getRightY() * SpeedMultiplier.STANDARD);
 				break;
@@ -145,17 +152,17 @@ public class Teleoperated {
 		}
 		
 		//Arm controls
-		if(ctlDriver.getRightBumper() || ctlOperator.getRightBumper())
+		if(ctlOperator.getRightBumper())
 			Manipulator.raiseArm();
-		else if(ctlDriver.getLeftBumper() || ctlOperator.getLeftBumper())
+		else if(ctlOperator.getLeftBumper())
 			Manipulator.lowerArm();
 		else
 			Manipulator.disableArm();
 
 		//Intake controls
-		if(ctlDriver.getAButton() || ctlOperator.getAButton())
+		if(ctlOperator.getAButton())
 			Manipulator.reverseIntake();
-		else if(ctlDriver.getRightTrigger() || ctlOperator.getRightTrigger())
+		else if(ctlOperator.getRightTrigger())
 			Manipulator.enableIntake();
 		else
 			Manipulator.disableIntake();
